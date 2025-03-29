@@ -10,9 +10,9 @@ import {
   CardActionArea,
   Badge,
   IconButton,
-  Box,
   AppBar,
   Toolbar,
+  Box,
 } from '@mui/material';
 import { ShoppingCart } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -44,10 +44,13 @@ function Shop() {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       {/* App Bar with Cart Icon */}
-      <AppBar position="static" color="primary" sx={{ mb: 3 }}>
-        <Toolbar>
-          <Typography variant="h5" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            Green Link Agriculture Shop
+      <AppBar position="static" color="default" sx={{ mb: 3, backgroundColor: 'white' }}>
+        <Toolbar sx={{ justifyContent: 'space-between' }}>
+          <Typography
+            variant="h4"
+            sx={{ fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: 2, color: 'green', flexGrow: 1, textAlign: 'center' }}
+          >
+            🌱 GreenLink Store 🛒
           </Typography>
           <IconButton color="inherit" onClick={() => navigate('/cart')}>
             <Badge badgeContent={cartCount} color="error">
@@ -79,7 +82,9 @@ function Shop() {
                 <CardActionArea onClick={() => navigate(`/item/${item.itemID}`)}>
                   <CardMedia
                     component="img"
-                    height="200"
+
+                    height="50%"
+                    width="50%"
                     image={item.imgURL}
                     alt={item.itemName}
                   />

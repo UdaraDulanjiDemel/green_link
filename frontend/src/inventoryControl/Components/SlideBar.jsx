@@ -21,31 +21,25 @@ function SlideBar() {
       </Box>
 
       <List>
-        <ListItemButton
-          component={Link}
-          to="/inventoryPanel"
-          selected={location.pathname === '/inventoryPanel'}
-          sx={{
-            color: 'white',
-            bgcolor: location.pathname === '/inventoryPanel' ? 'success.dark' : 'inherit',
-            '&:hover': { bgcolor: 'success.light' },
-          }}
-        >
-          <ListItemText primary="Home" />
-        </ListItemButton>
-
-        <ListItemButton
-          component={Link}
-          to="/inventoryPanel/addItems"
-          selected={location.pathname === '/inventoryPanel/addItems'}
-          sx={{
-            color: 'white',
-            bgcolor: location.pathname === '/inventoryPanel/addItems' ? 'success.dark' : 'inherit',
-            '&:hover': { bgcolor: 'success.light' },
-          }}
-        >
-          <ListItemText primary="Add Items" />
-        </ListItemButton>
+        {[
+          { text: 'Home', path: '/inventoryPanel' },
+          { text: 'Add Items', path: '/inventoryPanel/addItems' },
+        ].map(({ text, path }) => (
+          <ListItemButton
+            key={path}
+            component={Link}
+            to={path}
+            selected={location.pathname === path}
+            sx={{
+              color: 'white',
+              bgcolor: location.pathname === path ? 'rgba(255, 255, 255, 0.2)' : 'inherit',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' },
+              '&.Mui-selected': { bgcolor: 'rgba(255, 255, 255, 0.3)', fontWeight: 'bold' },
+            }}
+          >
+            <ListItemText primary={text} />
+          </ListItemButton>
+        ))}
       </List>
     </Drawer>
   );
