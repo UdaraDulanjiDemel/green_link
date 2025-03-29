@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, TextField, Typography, MenuItem, Alert, Paper } from '@mui/material';
+import { Box, Button, Container, TextField, Typography, Alert, Paper } from '@mui/material';
 import { storage } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { v4 } from 'uuid';
@@ -12,32 +12,46 @@ function AddItems() {
   const [itemBrand, setItemBrand] = useState('');
   const [itemPrice, setItemPrice] = useState('');
   const [stockCount, setStockCount] = useState('');
-  const [category, setCategory] = useState('');
+  const [catagory, setcatagory] = useState('');  // replaced with 'catagory'
   const [warranty, setWarranty] = useState('');
   const [itemDescription, setItemDescription] = useState('');
   const [error, setError] = useState(null);
   const [successMsg, setSuccessMsg] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   const validateForm = () => {
-    if (!itemID || itemID.length < 3) return "Item ID must be at least 3 characters.";
-    if (!itemName || itemName.length < 3) return "Item Name must be at least 3 characters.";
-    if (!itemBrand) return "Item Brand is required.";
-    if (!itemPrice || itemPrice <= 0) return "Item Price must be a positive number.";
-    if (!stockCount || stockCount <= 0) return "Stock Count must be a positive number.";
-    if (!category) return "Category is required.";
-    return null;
+    let errors = {};
+
+    // Ensure that catagory is provided
+    if (!catagory || catagory.trim() === '') errors.catagory = "catagory is required.";  // replaced with 'catagory'
+
+    // Ensure that an image is uploaded
+    if (!itemImage) errors.imgURL = "Item image is required.";
+
+    // Validate other fields
+    if (!itemID || itemID.length < 3) errors.itemID = "Item ID must be at least 3 characters.";
+    if (!itemName || itemName.length < 3) errors.itemName = "Item Name must be at least 3 characters.";
+    if (!itemBrand) errors.itemBrand = "Item Brand is required.";
+    if (!itemPrice || itemPrice <= 0) errors.itemPrice = "Item Price must be a positive number.";
+    if (!stockCount || stockCount <= 0) errors.stockCount = "Stock Count must be a positive number.";
+    if (itemDescription.length > 200) errors.itemDescription = "Description must be under 200 characters.";
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validationError = validateForm();
-    if (validationError) {
-      setError(validationError);
+    if (!validateForm()) return;
+
+    const imgURL = await imageUpload();
+    if (!imgURL) {
+      setValidationErrors(prev => ({ ...prev, imgURL: "Image upload failed or is missing." }));
       return;
     }
 
-    const imgURL = await imageUpload();
-    const newItem = { itemID, itemName, itemBrand, itemPrice, stockCount, category, warranty, itemDescription, imgURL };
+    const newItem = { itemID, itemName, itemBrand, itemPrice, stockCount, catagory, warranty, itemDescription, imgURL };  // replaced with 'catagory'
+
     const response = await fetch('/inventoryPanel/addItems', {
       method: 'POST',
       body: JSON.stringify(newItem),
@@ -82,11 +96,12 @@ function AddItems() {
     setItemBrand('');
     setItemPrice('');
     setStockCount('');
-    setCategory('');
+    setcatagory('');  // replaced with 'catagory'
     setWarranty('');
     setItemDescription('');
     setError(null);
     setSuccessMsg(null);
+    setValidationErrors({});
   };
 
   return (
@@ -110,16 +125,46 @@ function AddItems() {
               <input type="file" hidden onChange={handleImageCheck} />
             </Button>
 
+            {validationErrors.imgURL && (
+              <Alert severity="error" sx={{ my: 2 }}>
+                {validationErrors.imgURL}
+              </Alert>
+            )}
             <TextField fullWidth label="Item ID *" value={itemID} onChange={(e) => setItemID(e.target.value)} required sx={{ mb: 2 }} />
+            {validationErrors.itemID && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.itemID}</Alert>}
+
             <TextField fullWidth label="Item Name *" value={itemName} onChange={(e) => setItemName(e.target.value)} required sx={{ mb: 2 }} />
+            {validationErrors.itemName && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.itemName}</Alert>}
+
             <TextField fullWidth label="Item Brand *" value={itemBrand} onChange={(e) => setItemBrand(e.target.value)} required sx={{ mb: 2 }} />
+            {validationErrors.itemBrand && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.itemBrand}</Alert>}
+
             <TextField fullWidth label="Item Price *" type="number" value={itemPrice} onChange={(e) => setItemPrice(e.target.value)} required sx={{ mb: 2 }} />
+            {validationErrors.itemPrice && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.itemPrice}</Alert>}
+
             <TextField fullWidth label="Stock Count *" type="number" value={stockCount} onChange={(e) => setStockCount(e.target.value)} required sx={{ mb: 2 }} />
-            <TextField select fullWidth label="Category *" value={category} onChange={(e) => setCategory(e.target.value)} required sx={{ mb: 2 }}>
-              <MenuItem value="smartphone">Smartphone</MenuItem>
-              <MenuItem value="smartwatch">Smart Watch</MenuItem>
-            </TextField>
-            <TextField fullWidth label="Item Description" multiline rows={3} value={itemDescription} onChange={(e) => setItemDescription(e.target.value)} sx={{ mb: 3 }} />
+            {validationErrors.stockCount && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.stockCount}</Alert>}
+
+            <TextField
+              fullWidth
+              label="catagory *"  // replaced with 'catagory'
+              value={catagory}  // replaced with 'catagory'
+              onChange={(e) => setcatagory(e.target.value)}  // replaced with 'catagory'
+              required
+              sx={{ mb: 2 }}
+            />
+            {validationErrors.catagory && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.catagory}</Alert>}
+
+            <TextField
+              fullWidth
+              label="Item Description"
+              multiline
+              rows={3}
+              value={itemDescription}
+              onChange={(e) => setItemDescription(e.target.value)}
+              sx={{ mb: 3 }}
+            />
+            {validationErrors.itemDescription && <Alert severity="error" sx={{ mb: 2 }}>{validationErrors.itemDescription}</Alert>}
 
             <Button type="submit" variant="contained" fullWidth sx={{ bgcolor: 'success.main', color: 'white', borderRadius: 2 }}>
               Add Item
